@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Elosaúde App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reset e configurações gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            touch-action: manipulation;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+        
+        /* Simulação de dispositivo móvel - RESPONSIVO */
+        .mobile-frame {
+            position: relative;
+            width: 100%;
+            max-width: 375px;
+            height: 100%;
+            max-height: 812px;
+            background-color: white;
+            overflow: hidden;
+            border-radius: 40px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 400px) {
+            .mobile-frame {
+                border-radius: 20px;
+            }
+        }
+        
+        /* Barra de status */
+        .status-bar {
+            height: 44px;
+            background-color: transparent;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+            z-index: 10;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+        }
+        
+        .status-bar-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-bar-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-bar-right i {
+            margin-left: 8px;
+        }
+        
+        /* Conteúdo principal - Tela inicial */
+        .app-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+            position: relative;
+        }
+
+        .main-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 44px; /* Espaço para a status bar */
+            padding-bottom: 0px; 
+            background-image: 
+                linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 50%), /* Gradiente suave para o texto inferior */
+                url('minmax-ai.jpeg'); /* Sua imagem de fundo */
+            background-size: cover;
+            /* **NOVO: Ajuste da posição da imagem para alinhar a boca** */
+            background-position: center 50%; /* Tente 50% para centralizar verticalmente a imagem, ou ajuste */
+            
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            z-index: 2;
+        }
+
+        /* Logo no topo da tela */
+        .logo-container {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .logo-container img {
+            height: 60px;
+            width: auto;
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+        }
+        
+        /* Formulário de login (CPF/Senha) - Alinhado à boca da mulher */
+        .login-form-main {
+            width: 90%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 0px 20px;
+            /* **NOVO: Posicionamento absoluto e ajuste fino** */
+            position: absolute;
+            top: 65%; /* Começa a 50% do topo da main-screen */
+            transform: translateY(-50%); /* Ajusta 50% da altura do próprio formulário para centralizar */
+            /* Ou ajuste com top/bottom para um posicionamento mais manual: */
+            /* top: 400px; */ /* Experimente com este valor (em px) para mover para cima/baixo */
+            /* bottom: 180px; */ /* Alternativa, se for mais fácil alinhar de baixo para cima */
+            /* **NOVO/AJUSTADO para CENTRALIZAR HORIZONTALMENTE:** */
+			left: 50%; /* Move o lado esquerdo do formulário para o centro */
+			transform: translateX(-50%); /* Move o formulário para a esquerda em 50% da sua própria largura */
+			/* Se você já tem transform: translateY(), combine as duas propriedades: */
+			/* transform: translateY(-XXpx) translateX(-50%); */
+    /		* Ou, se for porcentagem: transform: translateY(-50%) translateX(-50%); */
+    
+
+            z-index: 6; /* Acima da imagem de fundo */
+        }
+        
+        .login-form-main .form-control {
+            height: 48px;
+            border-radius: 24px;
+            padding: 0 18px;
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 100%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .login-form-main .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .login-form-main .form-control:focus {
+            border-color: rgba(255, 255, 255, 0.6);
+            background-color: rgba(255, 255, 255, 0.2);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+        
+        .login-form-main .btn-app {
+            height: 48px;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: rgba(26, 179, 148, 0.6);
+            color: white;
+            border: none;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        
+        .login-form-main .btn-app:active {
+            background-color: rgba(21, 155, 130, 0.8);
+            transform: scale(0.98);
+        }
+        
+        .login-form-main .forgot-password {
+            text-align: center;
+            margin-top: 8px;
+        }
+        
+        .login-form-main .forgot-password a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .login-form-main .forgot-password a:active {
+            color: white;
+        }
+        
+        /* Ícones flutuantes na parte inferior (Carteirinha, Buscar Rede) */
+        .floating-actions {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 10;
+        }
+        
+        .floating-action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+            padding: 10px;
+            border-radius: 12px;
+            background-color: transparent;
+        }
+        
+        .floating-action-item:active {
+            transform: scale(0.95);
+          
+        }
+        
+        .floating-action-item i {
+            font-size: 32px;
+            margin-bottom: 6px;
+			color: white; /* Cor do ícone (base) */
+			/* **ADICIONE ESTA LINHA para o tom de transparência desejado** */
+			opacity: 0.3; /* Experimente valores entre 0.1 (muito transparente) e 0.9 (pouco transparente) */
+                 /* Um valor como 0.5, 0.6 ou 0.7 costuma ser um bom ponto de partida */
+        }
+        
+        .floating-action-item span {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+			color: white; /* Cor base do texto */
+			opacity: 0.3; /* **MESMO TOM DE TRANSPARÊNCIA PARA O TEXTO** */
+        }
+        
+        /* Modais (mantidos como antes) */
+        .app-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .app-modal.show {
+            display: flex;
+        }
+        
+        .modal-sheet {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+        
+        .app-modal.show .modal-sheet {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #757575;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .modal-close:active {
+            color: #333;
+        }
+        
+        /* Estilo para o modal de biometria */
+        .biometric-container {
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        .biometric-icon {
+            font-size: 64px;
+            color: #1AB394;
+            margin-bottom: 20px;
+        }
+        
+        .biometric-message {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #555;
+        }
+        
+        .biometric-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .btn-cancel, .btn-simulate {
+            flex: 1;
+            height: 56px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn-cancel {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .btn-cancel:active {
+            background-color: #e0e0e0;
+            transform: scale(0.98);
+        }
+        
+        .btn-simulate {
+            background-color: #1AB394;
+            color: white;
+        }
+        .btn-simulate:active {
+            background-color: #159b82;
+            transform: scale(0.98);
+        }
+        
+        /* Estilo para o cartão de saúde */
+        .health-card {
+            background: linear-gradient(135deg, #1AB394, #159b82);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 179, 148, 0.3);
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-logo {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .card-type {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .card-info {
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        
+        .info-label {
+            width: 40%;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        .info-value {
+            width: 60%;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .card-footer {
+            font-size: 12px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        /* Estilo para a tela de Buscar Rede dentro do modal */
+        .search-network-content {
+            padding: 20px;
+            text-align: center;
+        }
+        .search-network-content h2 {
+            font-size: 22px;
+            color: #1AB394;
+            margin-bottom: 15px;
+        }
+        .search-network-content p {
+            color: #555;
+            margin-bottom: 30px;
+        }
+        .search-network-placeholder {
+            background-color: #f0f0f0;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+        .search-network-placeholder i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #1AB394;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="status-bar">
+            <div class="status-bar-left">
+                12:39
+            </div>
+            <div class="status-bar-right">
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+        
+        <div class="app-content">
+            <div class="main-screen active" id="mainScreen">
+                <div class="logo-container">
+                    <img src="elosaude_semFundo.png" alt="Elosaúde Logo">
+                </div>
+                
+                <div class="top-content-area">
+                    <div class="login-form-main">
+                        <input type="text" class="form-control" placeholder="CPF ou Usuário" autocomplete="off">
+                        <input type="password" class="form-control" placeholder="Senha">
+                        <button class="btn-app" id="submitLogin">Entrar</button>
+                        <div class="forgot-password">
+                            <a href="#">Esqueci minha senha</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-actions">
+                    <div class="floating-action-item" id="actionCarteirinha">
+                        <i class="fas fa-id-card"></i>
+                        <span>Carteirinha</span>
+                    </div>
+                    <div class="floating-action-item" id="actionBuscarRede">
+                        <i class="fas fa-search"></i>
+                        <span>Buscar Rede</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-modal" id="biometricModal">
+                <div class="modal-sheet">
+                    <div class="modal-header">
+                        <div class="modal-title">Autenticação Biométrica</div>
+                        <button class="modal-close" id="closeBiometricModal">&times;</button>
+                    </div>
+                    <div class="biometric-container">
+                        <div class="biometric-icon">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div class="biometric-message">
+                            Toque no sensor de digital para acessar sua carteirinha
+                        </div>
+                        <div class="biometric-actions">
+                            <button class="btn-cancel" id="cancelBiometric">Cancelar</button>
+                            <button class="btn-simulate" id="simulateAuth">Simular Autenticação</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="app-modal" id="cardModal">
+                <div class="modal-sheet">
+                    <div class="modal-header">
+                        <div class="modal-title">Sua Carteirinha</div>
+                        <button class="modal-close" id="closeCardModal">&times;</button>
+                    </div>
+                    <div class="health-card">
+                        <div class="card-header">
+                            <div class="card-logo">Elosaúde</div>
+                            <div class="card-type">SAÚDE</div>
+                        </div>
+                        <div class="card-info">
+                            <div class="info-row">
+                                <div class="info-label">Nome:</div>
+                                <div class="info-value">Victor Silva</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Cartão:</div>
+                                <div class="info-value">ELO-123456</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Plano:</div>
+                                <div class="info-value">PREMIUM</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Validade:</div>
+                                <div class="info-value">INDETERMINADA</div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            Em caso de dúvidas, entre em contato: (48) 3333-4444
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 10px; color: #757575; font-size: 12px;">
+                        Dados carregados do cache seguro
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-modal" id="buscarRedeModal">
+                <div class="modal-sheet">
+                    <div class="modal-header">
+                        <div class="modal-title">Buscar Rede (Guia Médico)</div>
+                        <button class="modal-close" id="closeBuscarRedeModal">&times;</button>
+                    </div>
+                    <div class="search-network-content">
+                        <h2>Encontre Hospitais e Profissionais</h2>
+                        <p>Pesquise por especialidade, localização ou nome.</p>
+                        <div class="search-network-placeholder">
+                            <i class="fas fa-map-marker-alt"></i><br>
+                            <span>Campo de busca e resultados de mapa aqui.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="home-indicator"></div>
+    </div>
+
+    <script>
+        const submitLogin = document.getElementById('submitLogin');
+        const actionCarteirinha = document.getElementById('actionCarteirinha');
+        const actionBuscarRede = document.getElementById('actionBuscarRede');
+
+        // Modais
+        const biometricModal = document.getElementById('biometricModal');
+        const closeBiometricModal = document.getElementById('closeBiometricModal');
+        const cancelBiometric = document.getElementById('cancelBiometric');
+        const simulateAuth = document.getElementById('simulateAuth');
+
+        const cardModal = document.getElementById('cardModal');
+        const closeCardModal = document.getElementById('closeCardModal');
+
+        const buscarRedeModal = document.getElementById('buscarRedeModal');
+        const closeBuscarRedeModal = document.getElementById('closeBuscarRedeModal');
+
+        // Função para abrir qualquer modal
+        function openModal(modalElement) {
+            modalElement.classList.add('show');
+        }
+
+        // Função para fechar qualquer modal
+        function closeModal(modalElement) {
+            modalElement.classList.remove('show');
+        }
+
+        // Lógica de submissão do login tradicional (CPF/Senha)
+        submitLogin.addEventListener('click', function() {
+            alert('Login via CPF/Senha simulado! (Aqui você faria a autenticação real e redirecionaria para o app completo)');
+        });
+
+        // Abrir Modal de Biometria ao clicar no ícone "Carteirinha"
+        actionCarteirinha.addEventListener('click', function() {
+            openModal(biometricModal);
+        });
+
+        // Abrir Modal de Buscar Rede ao clicar no ícone "Buscar Rede"
+        actionBuscarRede.addEventListener('click', function() {
+            openModal(buscarRedeModal);
+        });
+        
+        // Lógica de fechamento para todos os modais
+        closeBiometricModal.addEventListener('click', () => closeModal(biometricModal));
+        cancelBiometric.addEventListener('click', () => closeModal(biometricModal));
+        closeCardModal.addEventListener('click', () => closeModal(cardModal));
+        closeBuscarRedeModal.addEventListener('click', () => closeModal(buscarRedeModal));
+
+        // Simular autenticação biométrica (abre o modal da carteirinha)
+        simulateAuth.addEventListener('click', function() {
+            closeModal(biometricModal);
+            setTimeout(() => { // Pequeno delay para transição suave
+                openModal(cardModal);
+            }, 300);
+        });
+
+        // Permitir fechar modais clicando fora deles (na área escura)
+        document.querySelectorAll('.app-modal').forEach(function(modal) {
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
